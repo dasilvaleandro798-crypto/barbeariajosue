@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel — Barbearia Josué</title>
+<meta name="theme-color" content="#1c1a17">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{
+  --dark:#1c1a17;--dark2:#252320;--dark3:#2e2b27;--dark4:#3a3530;
+  --gold:#c9a84c;--gold-lt:#e8c97a;--gold-dim:#8a6e2e;
+  --white:#f5f0e8;--muted:rgba(245,240,232,0.55);--faint:rgba(245,240,232,0.3);
+  --border:rgba(201,168,76,0.18);
+  --green:#22c55e;--blue:#3b82f6;--red:#ef4444;--orange:#f97316;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--dark);color:var(--white);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:var(--dark2);}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px;}
+
+/* SUSPENDED ACCESS */
+.suspended-access{position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#1c1a17,#252320);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.4s ease;}
+.suspended-access.active{opacity:1;pointer-events:all;}
+.suspended-access-card{background:var(--dark3);border:2px solid var(--red);border-radius:20px;padding:60px 40px;max-width:500px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.4);}
+.suspended-access-icon{font-size:4rem;margin-bottom:20px;animation:pulseSuspend 2s infinite;}
+@keyframes pulseSuspend{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.7;transform:scale(1.05);}}
+.suspended-access-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--red);margin-bottom:12px;}
+.suspended-access-text{font-size:0.95rem;color:var(--muted);line-height:1.8;}
+
+/* LOGIN SCREEN */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(160deg,#1c1a17,#252320);}
+.login-card{background:var(--dark3);border:1px solid var(--gold);border-radius:20px;padding:48px 40px;max-width:380px;width:100%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.4);}
+.login-logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--gold);margin-bottom:6px;}
+.login-sub{font-size:0.78rem;color:var(--muted);margin-bottom:32px;letter-spacing:0.05em;}
+.login-input{width:100%;background:rgba(255,255,255,0.04);border:1.5px solid rgba(201,168,76,0.18);color:var(--white);padding:14px 18px;border-radius:10px;font-family:'Inter',sans-serif;font-size:1rem;text-align:center;letter-spacing:0.4em;outline:none;transition:border-color .25s;margin-bottom:14px;}
+.login-input:focus{border-color:var(--gold);}
+.login-btn{width:100%;background:var(--gold);color:var(--dark);border:none;padding:14px;border-radius:10px;font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:all .25s;}
+.login-btn:hover{background:var(--gold-lt);transform:translateY(-2px);}
+.login-hint{font-size:0.72rem;color:var(--faint);margin-top:18px;}
+.login-error{color:var(--red);font-size:0.78rem;margin-top:10px;display:none;}
+.login-card.shake{animation:shake 0.4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+
+/* APP */
+.app{display:none;min-height:100vh;}
+.app.on{display:block;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(28,26,23,0.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.tb-logo{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:900;color:var(--gold);}
+.tb-logo em{color:var(--white);font-style:normal;}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-date{font-size:0.78rem;color:var(--muted);text-align:right;}
+.tb-date strong{color:var(--white);display:block;font-size:0.92rem;}
+.tb-logout{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red);padding:7px 14px;border-radius:8px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .22s;}
+.tb-logout:hover{background:var(--red);color:#fff;}
+
+/* ROBOT BADGE */
+.robot-badge{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .25s;user-select:none;}
+.robot-badge.active{background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);color:var(--green);}
+.robot-badge.inactive{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red);}
+.robot-dot{width:8px;height:8px;border-radius:50%;animation:pulseDot 1.5s infinite;}
+.robot-badge.active .robot-dot{background:var(--green);}
+.robot-badge.inactive .robot-dot{background:var(--red);animation:none;}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+/* TABS */
+.tabs{background:var(--dark2);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 16px;}
+.tab{flex-shrink:0;background:transparent;border:none;color:var(--muted);padding:14px 18px;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .25s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.tab:hover{color:var(--white);}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-badge{background:var(--orange);color:#fff;font-size:0.6rem;padding:2px 6px;border-radius:10px;font-weight:700;}
+
+/* CONTAINER */
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 80px;}
+
+/* PAGE */
+.page{display:none;}
+.page.show{display:block;animation:fadeIn .35s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px;}
+.stat-card{background:var(--dark3);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--gold);}
+.stat-icon{font-size:1.4rem;margin-bottom:8px;display:block;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);line-height:1;}
+.stat-lab{font-size:0.7rem;color:var(--muted);margin-top:4px;letter-spacing:0.05em;}
+.stat-card.green::before{background:var(--green);}
+.stat-card.green .stat-num{color:var(--green);}
+.stat-card.blue::before{background:var(--blue);}
+.stat-card.blue .stat-num{color:var(--blue);}
+.stat-card.orange::before{background:var(--orange);}
+.stat-card.orange .stat-num{color:var(--orange);}
+
+/* SECTION HEADER */
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+.sec-t{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;}
+.sec-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{padding:9px 16px;border-radius:8px;border:none;font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:600;cursor:pointer;transition:all .22s;display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
+.btn-gold{background:var(--gold);color:var(--dark);}
+.btn-gold:hover{background:var(--gold-lt);transform:translateY(-1px);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.btn-ghost:hover{color:var(--gold);border-color:var(--gold);}
+.btn-red{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2);}
+.btn-red:hover{background:var(--red);color:#fff;}
+.btn-sm{padding:6px 12px;font-size:0.72rem;}
+
+/* APPOINTMENT CARDS */
+.appts-list{display:flex;flex-direction:column;gap:10px;}
+.appt{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;transition:all .22s;}
+.appt:hover{border-color:rgba(201,168,76,0.4);}
+.appt.done{opacity:0.5;}
+.appt-time{flex-shrink:0;background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center;min-width:60px;}
+.appt-time-h{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);line-height:1;}
+.appt-time-m{font-size:0.62rem;color:var(--muted);margin-top:2px;}
+.appt-info{flex:1;min-width:0;}
+.appt-name{font-size:0.95rem;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.appt-srv{font-size:0.78rem;color:var(--muted);}
+.appt-tag{font-size:0.6rem;font-weight:700;letter-spacing:0.08em;padding:2px 8px;border-radius:20px;text-transform:uppercase;}
+.tag-josue{background:rgba(201,168,76,0.15);color:var(--gold);}
+.tag-rafael{background:rgba(59,130,246,0.15);color:var(--blue);}
+.tag-confirmado{background:rgba(34,197,94,0.12);color:var(--green);}
+.tag-pendente{background:rgba(249,115,22,0.12);color:var(--orange);}
+.tag-conflito{background:rgba(239,68,68,0.12);color:var(--red);}
+.appt-actions{display:flex;gap:6px;flex-shrink:0;}
+.appt-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:0.85rem;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.appt-btn:hover{transform:scale(1.1);}
+.appt-btn.confirm:hover{background:var(--green);color:#fff;border-color:var(--green);}
+.appt-btn.cancel:hover{background:var(--red);color:#fff;border-color:var(--red);}
+.appt-btn.wa:hover{background:#25d366;color:#fff;border-color:#25d366;}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-ico{font-size:3rem;margin-bottom:12px;opacity:0.3;}
+.empty-msg{font-size:0.92rem;}
+
+/* SCHEDULE GRID */
+.sched-day-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:6px;}
+.sched-day{flex-shrink:0;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;text-align:center;min-width:64px;cursor:pointer;transition:all .22s;}
+.sched-day.active{background:var(--gold);border-color:var(--gold);}
+.sched-day.active .sd-d,.sched-day.active .sd-w{color:var(--dark);}
+.sd-w{font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;}
+.sd-d{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--white);line-height:1;margin-top:2px;}
+.hours-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:8px;}
+.hour-slot{background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .22s;font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--white);position:relative;}
+.hour-slot:hover{border-color:var(--gold);}
+.hour-slot.busy{background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--red);cursor:not-allowed;}
+.hour-slot.blocked{background:rgba(245,240,232,0.05);border-color:var(--border);color:var(--faint);}
+.hour-slot.free{background:rgba(34,197,94,0.06);border-color:rgba(34,197,94,0.2);}
+.hour-slot-name{font-family:'Inter',sans-serif;font-size:0.55rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* CLIENTS */
+.clients-list{display:flex;flex-direction:column;gap:8px;}
+.client-row{background:var(--dark3);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.client-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dim),var(--gold));display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;}
+.client-info{flex:1;min-width:0;}
+.client-name{font-size:0.92rem;font-weight:600;margin-bottom:2px;}
+.client-meta{font-size:0.74rem;color:var(--muted);}
+.client-stats{font-size:0.72rem;color:var(--gold);font-weight:600;}
+
+/* ROBOT LOG */
+.robot-log{background:var(--dark3);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-top:20px;max-height:300px;overflow-y:auto;}
+.robot-log-title{font-size:0.85rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;color:var(--gold);}
+.robot-log-item{font-size:0.75rem;color:var(--muted);padding:6px 0;border-bottom:1px solid rgba(201,168,76,0.06);display:flex;gap:8px;align-items:flex-start;}
+.robot-log-item:last-child{border-bottom:none;}
+.robot-log-time{color:var(--faint);font-size:0.68rem;flex-shrink:0;min-width:50px;}
+.robot-log-action{flex:1;}
+.robot-log-action.success{color:var(--green);}
+.robot-log-action.conflict{color:var(--red);}
+.robot-log-action.info{color:var(--blue);}
+.robot-log-empty{font-size:0.78rem;color:var(--faint);text-align:center;padding:20px;}
+
+/* SETTINGS */
+.set-card{background:var(--dark3);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:14px;}
+.set-title{font-size:0.95rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(201,168,76,0.06);gap:12px;}
+.set-row:last-child{border-bottom:none;}
+.set-row-label{font-size:0.85rem;color:var(--muted);}
+.set-row-val{font-size:0.85rem;font-weight:600;}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:20px;}
+.modal.on{display:flex;}
+.modal-box{background:var(--dark3);border:1px solid var(--gold);border-radius:18px;padding:28px;max-width:420px;width:100%;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
+@keyframes popIn{from{opacity:0;transform:scale(.85);}to{opacity:1;transform:scale(1);}}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;margin-bottom:18px;color:var(--gold);}
+.modal-field{margin-bottom:14px;}
+.modal-label{font-size:0.72rem;color:var(--muted);margin-bottom:4px;display:block;text-transform:uppercase;letter-spacing:0.08em;}
+.modal-input{width:100%;background:rgba(255,255,255,0.04);border:1.5px solid var(--border);color:var(--white);padding:11px 14px;border-radius:8px;font-family:'Inter',sans-serif;font-size:0.88rem;outline:none;transition:border-color .25s;}
+.modal-input:focus{border-color:var(--gold);}
+.modal-actions{display:flex;gap:10px;margin-top:20px;}
+.modal-actions .btn{flex:1;justify-content:center;}
+
+/* TOAST */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--dark3);border:1px solid var(--gold);color:var(--white);padding:12px 24px;border-radius:12px;font-size:0.82rem;font-weight:500;z-index:9999;transition:transform 0.4s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 30px rgba(0,0,0,0.4);display:flex;align-items:center;gap:8px;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .topbar{padding:12px 16px;}
+  .tb-date{display:none;}
+  .wrap{padding:16px 12px 60px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:8px;}
+  .stat-card{padding:14px 16px;}
+  .stat-num{font-size:1.6rem;}
+  .appt{flex-wrap:wrap;gap:10px;}
+  .appt-time{min-width:54px;padding:6px 8px;}
+  .appt-actions{flex-direction:row;}
+  .tabs{padding:0 8px;}
+  .tab{padding:12px 14px;font-size:0.78rem;}
+  .hours-grid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;}
+  .modal-box{padding:20px;margin:10px;}
+}
+@media(min-width:600px){
+  .tb-date{display:block;}
+}
+</style>
+
+<!-- FIREBASE -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import {
+    getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, getDoc,
+    query, orderBy, onSnapshot, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzlaNyztK-gS4Wp9ktgfNeqU2KHRzcArw",
+    authDomain: "barbeariajosue-6e0ba.firebaseapp.com",
+    projectId: "barbeariajosue-6e0ba",
+    storageBucket: "barbeariajosue-6e0ba.firebasestorage.app",
+    messagingSenderId: "939867299940",
+    appId: "1:939867299940:web:f7030c57fbf123ed483f71"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.FB = {
+    db, collection, doc, addDoc, updateDoc, deleteDoc, getDoc,
+    query, orderBy, onSnapshot, serverTimestamp, ready: true
+  };
+
+  // Listener global de suspensao
+  onSnapshot(doc(db, 'config', 'barbearia-josue'), function(docSnap) {
+    if (docSnap.exists()) {
+      const config = docSnap.data();
+      const el = document.getElementById('suspendedAccess');
+      if (config.suspenso === true) {
+        el.classList.add('active');
+      } else {
+        el.classList.remove('active');
+      }
+    }
+  });
+
+  console.log('Firebase conectado ao painel');
+  window.dispatchEvent(new CustomEvent('firebase-ready'));
+</script>
+
+</head>
+<body>
+
+<!-- SUSPENDED ACCESS -->
+<div class="suspended-access" id="suspendedAccess">
+  <div class="suspended-access-card">
+    <div class="suspended-access-icon">&#128274;</div>
+    <h1 class="suspended-access-title">Acesso Suspenso</h1>
+    <p class="suspended-access-text">Seu painel foi temporariamente suspenso pelo administrador.<br>Entre em contato para mais informacoes.</p>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login" id="login">
+  <div class="login-card" id="loginCard">
+    <div style="font-size:2.5rem;margin-bottom:10px">&#128136;</div>
+    <div class="login-logo">Barbearia Josue</div>
+    <div class="login-sub">PAINEL DE CONTROLE</div>
+    <input type="password" class="login-input" id="pw" placeholder="&#8226;&#8226;&#8226;&#8226;" maxlength="10" inputmode="numeric">
+    <button class="login-btn" id="loginBtn" onclick="entrar()">ENTRAR</button>
+    <div class="login-error" id="loginError">Senha incorreta!</div>
+    <div class="login-hint">Senha fornecida pelo administrador</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-logo">Barbearia <em>Josue</em></div>
+    <div class="tb-right">
+      <div class="robot-badge inactive" id="robotBadge" onclick="toggleRobot()" title="Clique para ligar/desligar o robo">
+        <span class="robot-dot"></span>
+        <span id="robotLabel">Robo Inativo</span>
+      </div>
+      <div class="tb-date" id="tbDate"></div>
+      <button class="tb-logout" onclick="sair()">SAIR</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="dashboard">&#128200; Dashboard</button>
+    <button class="tab" data-tab="agenda">&#128197; Agenda <span class="tab-badge" id="badgePendentes" style="display:none">0</span></button>
+    <button class="tab" data-tab="horarios">&#128337; Horarios</button>
+    <button class="tab" data-tab="clientes">&#128101; Clientes</button>
+    <button class="tab" data-tab="robo">&#129302; Robo</button>
+    <button class="tab" data-tab="config">&#9881; Config</button>
+  </div>
+
+  <div class="wrap">
+
+    <!-- DASHBOARD -->
+    <div class="page show" id="pageDashboard">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-icon">&#128197;</span>
+          <div class="stat-num" id="stHoje">0</div>
+          <div class="stat-lab">HOJE</div>
+        </div>
+        <div class="stat-card green">
+          <span class="stat-icon">&#9989;</span>
+          <div class="stat-num" id="stConfirmados">0</div>
+          <div class="stat-lab">CONFIRMADOS</div>
+        </div>
+        <div class="stat-card orange">
+          <span class="stat-icon">&#9203;</span>
+          <div class="stat-num" id="stPendentes">0</div>
+          <div class="stat-lab">PENDENTES</div>
+        </div>
+        <div class="stat-card blue">
+          <span class="stat-icon">&#128176;</span>
+          <div class="stat-num" id="stReceita">R$0</div>
+          <div class="stat-lab">RECEITA HOJE</div>
+        </div>
+      </div>
+
+      <div class="sec-h">
+        <div class="sec-t">Proximos Agendamentos</div>
+        <button class="btn btn-gold" onclick="abrirModalNovo()">+ Novo</button>
+      </div>
+      <div class="appts-list" id="proximos"></div>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="page" id="pageAgenda">
+      <div class="sec-h">
+        <div class="sec-t">Todos os Agendamentos</div>
+        <div class="sec-actions">
+          <select id="filterBarb" onchange="renderAgenda()" class="modal-input" style="width:auto;padding:8px 12px;font-size:0.78rem;">
+            <option value="">Todos barbeiros</option>
+            <option value="Josue Trindade">Josue</option>
+            <option value="Rafael Souza">Rafael</option>
+          </select>
+          <select id="filterStatus" onchange="renderAgenda()" class="modal-input" style="width:auto;padding:8px 12px;font-size:0.78rem;">
+            <option value="">Todos status</option>
+            <option value="pendente">Pendentes</option>
+            <option value="confirmado">Confirmados</option>
+            <option value="conflito">Conflitos</option>
+          </select>
+        </div>
+      </div>
+      <div class="appts-list" id="todosAgendamentos"></div>
+    </div>
+
+    <!-- HORARIOS -->
+    <div class="page" id="pageHorarios">
+      <div class="sec-h">
+        <div class="sec-t">Controle de Horarios</div>
+        <span style="font-size:0.72rem;color:var(--muted)">Clique para bloquear/liberar</span>
+      </div>
+      <div class="sched-day-tabs" id="dayTabs"></div>
+      <div class="hours-grid" id="hoursGrid"></div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="page" id="pageClientes">
+      <div class="sec-h">
+        <div class="sec-t">Clientes</div>
+        <input type="text" id="searchClient" placeholder="Buscar cliente..." class="modal-input" style="width:200px;padding:8px 12px;font-size:0.78rem;" oninput="renderClientes()">
+      </div>
+      <div class="clients-list" id="listaClientes"></div>
+    </div>
+
+    <!-- ROBO -->
+    <div class="page" id="pageRobo">
+      <div class="sec-h">
+        <div class="sec-t">Robo de Automacao</div>
+        <button class="btn btn-ghost btn-sm" onclick="limparLogs()">Limpar Logs</button>
+      </div>
+
+      <div class="set-card">
+        <div class="set-title">&#129302; Status do Robo</div>
+        <div class="set-row">
+          <div class="set-row-label">Automacao de agendamentos</div>
+          <div class="robot-badge" id="robotBadgePage" onclick="toggleRobot()" style="cursor:pointer">
+            <span class="robot-dot"></span>
+            <span id="robotLabelPage">Carregando...</span>
+          </div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-label">Funcionamento</div>
+          <div class="set-row-val" style="font-size:0.75rem;color:var(--muted)">Confirma automaticamente se horario livre. Marca conflito se ocupado.</div>
+        </div>
+      </div>
+
+      <div class="robot-log" id="robotLog">
+        <div class="robot-log-title">&#128196; Historico de Acoes Automaticas</div>
+        <div id="robotLogList">
+          <div class="robot-log-empty">Nenhuma acao registrada ainda</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="page" id="pageConfig">
+      <div class="sec-h">
+        <div class="sec-t">Configuracoes</div>
+      </div>
+
+      <div class="set-card">
+        <div class="set-title">&#128136; Informacoes da Barbearia</div>
+        <div class="set-row">
+          <div class="set-row-label">Nome</div>
+          <div class="set-row-val">Barbearia Josue</div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-label">Funcionamento</div>
+          <div class="set-row-val">Seg-Sex 8h-18h | Sab 7h-18h</div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-label">Barbeiros</div>
+          <div class="set-row-val">Josue Trindade, Rafael Souza</div>
+        </div>
+      </div>
+
+      <div class="set-card">
+        <div class="set-title">&#128187; Suporte Tecnico</div>
+        <div class="set-row">
+          <div class="set-row-label">Desenvolvedor</div>
+          <div class="set-row-val">Leandro Dev</div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-label">Contato</div>
+          <div class="set-row-val" style="color:var(--green)">WhatsApp do Leandro</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /wrap -->
+</div><!-- /app -->
+
+<!-- MODAL NOVO AGENDAMENTO -->
+<div class="modal" id="modalNovo">
+  <div class="modal-box">
+    <div class="modal-title">Novo Agendamento</div>
+    <div class="modal-field">
+      <label class="modal-label">Nome do cliente</label>
+      <input type="text" class="modal-input" id="novoNome" placeholder="Nome completo">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Telefone</label>
+      <input type="tel" class="modal-input" id="novoTel" placeholder="(21) 99999-9999">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Servico</label>
+      <select class="modal-input" id="novoServico">
+        <option value="Corte de Maquina|35">Corte de Maquina - R$35</option>
+        <option value="Corte na Tesoura|45">Corte na Tesoura - R$45</option>
+        <option value="Barba Completa|30">Barba Completa - R$30</option>
+        <option value="Corte + Barba|60">Corte + Barba - R$60</option>
+        <option value="Sobrancelha|15">Sobrancelha - R$15</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Barbeiro</label>
+      <select class="modal-input" id="novoBarbeiro">
+        <option value="Josue Trindade">Josue Trindade</option>
+        <option value="Rafael Souza">Rafael Souza</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Data</label>
+      <input type="date" class="modal-input" id="novoData">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Horario</label>
+      <select class="modal-input" id="novoHora">
+        <option value="08:00">08:00</option>
+        <option value="08:30">08:30</option>
+        <option value="09:00">09:00</option>
+        <option value="09:30">09:30</option>
+        <option value="10:00">10:00</option>
+        <option value="10:30">10:30</option>
+        <option value="11:00">11:00</option>
+        <option value="11:30">11:30</option>
+        <option value="13:00">13:00</option>
+        <option value="13:30">13:30</option>
+        <option value="14:00">14:00</option>
+        <option value="14:30">14:30</option>
+        <option value="15:00">15:00</option>
+        <option value="15:30">15:30</option>
+        <option value="16:00">16:00</option>
+        <option value="16:30">16:30</option>
+        <option value="17:00">17:00</option>
+        <option value="17:30">17:30</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-gold" id="btnSalvarNovo" onclick="salvarNovoAgendamento()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+var APPTS = [];
+var BLOCKS = JSON.parse(localStorage.getItem('bj_blocks') || '{}');
+var SELECTED_DAY = new Date().toISOString().split('T')[0];
+var ROBOT_ACTIVE = false;
+var ROBOT_LOGS = JSON.parse(localStorage.getItem('bj_robot_logs') || '[]');
+var PROCESSED_IDS = JSON.parse(localStorage.getItem('bj_processed') || '[]');
+
+// ═══════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════
+async function entrar() {
+  var pwInput = document.getElementById('pw').value;
+  if (!pwInput) return;
+
+  var btn = document.getElementById('loginBtn');
+  btn.textContent = 'ENTRANDO...';
+  btn.disabled = true;
+
+  if (!window.FB || !window.FB.ready) {
+    showToast('Aguarde a conexao com o banco de dados...');
+    btn.textContent = 'ENTRAR';
+    btn.disabled = false;
+    return;
+  }
+
+  try {
+    var docRef = window.FB.doc(window.FB.db, 'config', 'barbearia-josue');
+    var docSnap = await window.FB.getDoc(docRef);
+
+    var senhaCorreta = '2015';
+    if (docSnap.exists()) {
+      var config = docSnap.data();
+      if (config.senha) senhaCorreta = config.senha;
+
+      if (config.suspenso === true) {
+        document.getElementById('suspendedAccess').classList.add('active');
+        btn.textContent = 'ENTRAR';
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    if (pwInput === senhaCorreta) {
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('app').classList.add('on');
+      sessionStorage.setItem('bj_auth', '1');
+      init();
+    } else {
+      document.getElementById('loginCard').classList.add('shake');
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('pw').value = '';
+      setTimeout(function() {
+        document.getElementById('loginCard').classList.remove('shake');
+      }, 400);
+    }
+  } catch (error) {
+    console.error('Erro login:', error);
+    showToast('Erro ao conectar. Tente novamente.');
+  }
+
+  btn.textContent = 'ENTRAR';
+  btn.disabled = false;
+}
+
+function sair() {
+  sessionStorage.removeItem('bj_auth');
+  location.reload();
+}
+
+document.getElementById('pw').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') entrar();
+});
+
+// Auto-login se sessao ativa
+window.addEventListener('firebase-ready', function() {
+  if (sessionStorage.getItem('bj_auth') === '1') {
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').classList.add('on');
+    init();
+  }
+});
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function init() {
+  updateDate();
+  setupTabs();
+  loadAgendamentos();
+  loadRobotState();
+  renderRobotLogs();
+  setDateMin();
+}
+
+function updateDate() {
+  var now = new Date();
+  var dias = ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'];
+  var meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  var el = document.getElementById('tbDate');
+  if (el) {
+    el.innerHTML = '<strong>' + dias[now.getDay()] + '</strong>' + now.getDate() + ' ' + meses[now.getMonth()] + ' ' + now.getFullYear();
+  }
+}
+
+function setDateMin() {
+  var el = document.getElementById('novoData');
+  if (el) el.min = new Date().toISOString().split('T')[0];
+}
+
+// ═══════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════
+function setupTabs() {
+  var tabs = document.querySelectorAll('.tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+
+      var target = tab.getAttribute('data-tab');
+      document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('show'); });
+
+      var pageId = 'page' + target.charAt(0).toUpperCase() + target.slice(1);
+      var page = document.getElementById(pageId);
+      if (page) page.classList.add('show');
+
+      if (target === 'agenda') renderAgenda();
+      if (target === 'horarios') renderHorarios();
+      if (target === 'clientes') renderClientes();
+      if (target === 'robo') renderRobotLogs();
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+// FIREBASE LISTENER
+// ═══════════════════════════════════════════════
+function loadAgendamentos() {
+  if (!window.FB || !window.FB.ready) {
+    setTimeout(loadAgendamentos, 500);
+    return;
+  }
+
+  var q = window.FB.query(
+    window.FB.collection(window.FB.db, 'agendamentos'),
+    window.FB.orderBy('criadoEm', 'desc')
+  );
+
+  window.FB.onSnapshot(q, function(snapshot) {
+    APPTS = [];
+    snapshot.forEach(function(docSnap) {
+      var d = docSnap.data();
+      APPTS.push({
+        id: docSnap.id,
+        nome: d.nome || '',
+        tel: d.telefone || d.tel || '',
+        servico: d.servico || '',
+        barbeiro: d.barbeiro || '',
+        data: d.data || '',
+        dataReal: d.data || '',
+        hora: d.hora || '',
+        status: d.status || 'pendente',
+        preco: parseInt(d.preco) || extrairPreco(d.servico),
+        criadoEm: d.criadoEm
+      });
+    });
+
+    renderDashboard();
+    updateBadgePendentes();
+
+    // Processar novos agendamentos com o robo
+    if (ROBOT_ACTIVE) {
+      APPTS.forEach(function(a) {
+        if (a.status === 'pendente' && PROCESSED_IDS.indexOf(a.id) === -1) {
+          processarRobo(a);
+          PROCESSED_IDS.push(a.id);
+          localStorage.setItem('bj_processed', JSON.stringify(PROCESSED_IDS));
+        }
+      });
+    }
+  });
+}
+
+function extrairPreco(servico) {
+  if (!servico) return 0;
+  var s = servico.toLowerCase();
+  if (s.includes('maquina')) return 35;
+  if (s.includes('tesoura')) return 45;
+  if (s.includes('barba') && s.includes('corte')) return 60;
+  if (s.includes('barba')) return 30;
+  if (s.includes('sobrancelha')) return 15;
+  return 35;
+}
+
+// ═══════════════════════════════════════════════
+// ROBOT AUTOMATION
+// ═══════════════════════════════════════════════
+function loadRobotState() {
+  if (!window.FB || !window.FB.ready) {
+    setTimeout(loadRobotState, 500);
+    return;
+  }
+
+  window.FB.onSnapshot(window.FB.doc(window.FB.db, 'config', 'barbearia-josue'), function(docSnap) {
+    if (docSnap.exists()) {
+      var config = docSnap.data();
+      ROBOT_ACTIVE = config.roboAtivo === true;
+      updateRobotUI();
+    }
+  });
+}
+
+function updateRobotUI() {
+  var badge = document.getElementById('robotBadge');
+  var badgePage = document.getElementById('robotBadgePage');
+  var label = document.getElementById('robotLabel');
+  var labelPage = document.getElementById('robotLabelPage');
+
+  if (ROBOT_ACTIVE) {
+    badge.className = 'robot-badge active';
+    if (badgePage) badgePage.className = 'robot-badge active';
+    label.textContent = 'Robo Ativo';
+    if (labelPage) labelPage.textContent = 'Robo Ativo';
+  } else {
+    badge.className = 'robot-badge inactive';
+    if (badgePage) badgePage.className = 'robot-badge inactive';
+    label.textContent = 'Robo Inativo';
+    if (labelPage) labelPage.textContent = 'Robo Inativo';
+  }
+}
+
+async function toggleRobot() {
+  if (!window.FB || !window.FB.ready) return;
+
+  ROBOT_ACTIVE = !ROBOT_ACTIVE;
+  updateRobotUI();
+
+  try {
+    var ref = window.FB.doc(window.FB.db, 'config', 'barbearia-josue');
+    await window.FB.updateDoc(ref, { roboAtivo: ROBOT_ACTIVE });
+    addRobotLog(ROBOT_ACTIVE ? 'Robo ATIVADO pelo administrador' : 'Robo DESATIVADO pelo administrador', 'info');
+    showToast(ROBOT_ACTIVE ? 'Robo ativado!' : 'Robo desativado');
+  } catch (e) {
+    console.error('Erro ao salvar estado do robo:', e);
+  }
+}
+
+function processarRobo(agendamento) {
+  var a = agendamento;
+
+  // Verificar se e domingo
+  if (a.data) {
+    var parts = a.data.split('-');
+    var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    if (dateObj.getDay() === 0) {
+      marcarConflito(a.id, 'Domingo nao atende');
+      addRobotLog('CONFLITO: ' + a.nome + ' tentou agendar no domingo (' + a.data + ')', 'conflict');
+      return;
+    }
+  }
+
+  // Verificar horario de funcionamento
+  if (a.hora) {
+    var h = parseInt(a.hora.split(':')[0]);
+    if (h < 7 || h >= 18) {
+      marcarConflito(a.id, 'Fora do horario de funcionamento');
+      addRobotLog('CONFLITO: ' + a.nome + ' - horario ' + a.hora + ' fora do expediente', 'conflict');
+      return;
+    }
+  }
+
+  // Verificar conflito com outro agendamento
+  var conflito = APPTS.some(function(outro) {
+    return outro.id !== a.id &&
+           outro.barbeiro === a.barbeiro &&
+           outro.dataReal === a.dataReal &&
+           outro.hora === a.hora &&
+           (outro.status === 'confirmado');
+  });
+
+  if (conflito) {
+    marcarConflito(a.id, 'Horario ja ocupado');
+    addRobotLog('CONFLITO: ' + a.nome + ' - ' + a.hora + ' com ' + a.barbeiro + ' ja ocupado', 'conflict');
+  } else {
+    confirmarAutomatico(a.id);
+    addRobotLog('CONFIRMADO: ' + a.nome + ' - ' + a.hora + ' com ' + a.barbeiro, 'success');
+  }
+}
+
+async function confirmarAutomatico(id) {
+  if (!window.FB || !window.FB.ready) return;
+  try {
+    var ref = window.FB.doc(window.FB.db, 'agendamentos', id);
+    await window.FB.updateDoc(ref, { status: 'confirmado' });
+  } catch (e) {
+    console.error('Erro ao confirmar automatico:', e);
+  }
+}
+
+async function marcarConflito(id, motivo) {
+  if (!window.FB || !window.FB.ready) return;
+  try {
+    var ref = window.FB.doc(window.FB.db, 'agendamentos', id);
+    await window.FB.updateDoc(ref, { status: 'conflito', motivoConflito: motivo });
+  } catch (e) {
+    console.error('Erro ao marcar conflito:', e);
+  }
+}
+
+function addRobotLog(msg, type) {
+  var now = new Date();
+  var time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+  ROBOT_LOGS.unshift({ time: time, msg: msg, type: type, date: now.toISOString() });
+  if (ROBOT_LOGS.length > 50) ROBOT_LOGS = ROBOT_LOGS.slice(0, 50);
+  localStorage.setItem('bj_robot_logs', JSON.stringify(ROBOT_LOGS));
+  renderRobotLogs();
+}
+
+function renderRobotLogs() {
+  var el = document.getElementById('robotLogList');
+  if (!el) return;
+
+  if (ROBOT_LOGS.length === 0) {
+    el.innerHTML = '<div class="robot-log-empty">Nenhuma acao registrada ainda</div>';
+    return;
+  }
+
+  el.innerHTML = ROBOT_LOGS.map(function(log) {
+    return '<div class="robot-log-item">' +
+      '<span class="robot-log-time">' + log.time + '</span>' +
+      '<span class="robot-log-action ' + (log.type || '') + '">' + log.msg + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function limparLogs() {
+  ROBOT_LOGS = [];
+  localStorage.setItem('bj_robot_logs', '[]');
+  renderRobotLogs();
+  showToast('Logs limpos');
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  var hoje = new Date().toISOString().split('T')[0];
+  var hojeAppts = APPTS.filter(function(a) { return a.dataReal === hoje && a.status !== 'cancelado'; });
+  var conf = hojeAppts.filter(function(a) { return a.status === 'confirmado'; });
+  var pend = APPTS.filter(function(a) { return a.status === 'pendente'; });
+  var rec = hojeAppts.reduce(function(s, a) { return s + (a.preco || 0); }, 0);
+
+  document.getElementById('stHoje').textContent = hojeAppts.length;
+  document.getElementById('stConfirmados').textContent = conf.length;
+  document.getElementById('stPendentes').textContent = pend.length;
+  document.getElementById('stReceita').textContent = 'R$' + rec;
+
+  var prox = hojeAppts.sort(function(a, b) { return a.hora.localeCompare(b.hora); });
+  var html = prox.length ? prox.map(renderAppt).join('') :
+    '<div class="empty"><div class="empty-ico">&#128237;</div><div class="empty-msg">Nenhum agendamento para hoje</div></div>';
+  document.getElementById('proximos').innerHTML = html;
+}
+
+function updateBadgePendentes() {
+  var pend = APPTS.filter(function(a) { return a.status === 'pendente'; });
+  var badge = document.getElementById('badgePendentes');
+  if (pend.length > 0) {
+    badge.style.display = 'inline';
+    badge.textContent = pend.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// RENDER APPOINTMENT
+// ═══════════════════════════════════════════════
+function renderAppt(a) {
+  var hr = (a.hora || '00:00').split(':');
+  var tag = (a.barbeiro || '').includes('Josue') ? 'tag-josue' : 'tag-rafael';
+  var nomeCurto = (a.barbeiro || '').includes('Josue') ? 'Josue' : 'Rafael';
+  var tel = (a.tel || '').replace(/\D/g, '');
+
+  var statusTag = '';
+  if (a.status === 'confirmado') {
+    statusTag = '<span class="appt-tag tag-confirmado">Confirmado</span>';
+  } else if (a.status === 'pendente') {
+    statusTag = '<span class="appt-tag tag-pendente">Pendente</span>';
+  } else if (a.status === 'conflito') {
+    statusTag = '<span class="appt-tag tag-conflito">Conflito</span>';
+  }
+
+  var actions = '';
+  if (tel) {
+    actions += '<a href="https://wa.me/55' + tel + '" target="_blank" class="appt-btn wa" title="WhatsApp">&#128172;</a>';
+  }
+  if (a.status === 'pendente' || a.status === 'conflito') {
+    actions += '<button class="appt-btn confirm" onclick="confirmarAgendamento(\'' + a.id + '\')" title="Confirmar">&#10003;</button>';
+  }
+  actions += '<button class="appt-btn cancel" onclick="cancelarAgendamento(\'' + a.id + '\')" title="Cancelar">&#10005;</button>';
+
+  var isDone = (a.status === 'cancelado') ? ' done' : '';
+
+  return '<div class="appt' + isDone + '">' +
+    '<div class="appt-time"><div class="appt-time-h">' + hr[0] + '</div><div class="appt-time-m">' + hr[1] + '</div></div>' +
+    '<div class="appt-info">' +
+      '<div class="appt-name">' + (a.nome || 'Sem nome') + ' <span class="appt-tag ' + tag + '">' + nomeCurto + '</span> ' + statusTag + '</div>' +
+      '<div class="appt-srv">' + (a.servico || '') + ' &middot; R$' + (a.preco || 0) + ' &middot; ' + (a.tel || '') + '</div>' +
+    '</div>' +
+    '<div class="appt-actions">' + actions + '</div>' +
+  '</div>';
+}
+
+// ═══════════════════════════════════════════════
+// CONFIRMAR / CANCELAR
+// ═══════════════════════════════════════════════
+function confirmarAgendamento(id) {
+  if (!window.FB || !window.FB.ready) {
+    showToast('Aguarde a conexao...');
+    return;
+  }
+  var ref = window.FB.doc(window.FB.db, 'agendamentos', id);
+  window.FB.updateDoc(ref, { status: 'confirmado' }).then(function() {
+    showToast('Agendamento confirmado!');
+  }).catch(function(e) {
+    console.error(e);
+    showToast('Erro ao confirmar');
+  });
+}
+
+function cancelarAgendamento(id) {
+  if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+  if (!window.FB || !window.FB.ready) {
+    showToast('Aguarde a conexao...');
+    return;
+  }
+  var ref = window.FB.doc(window.FB.db, 'agendamentos', id);
+  window.FB.deleteDoc(ref).then(function() {
+    showToast('Agendamento cancelado');
+  }).catch(function(e) {
+    console.error(e);
+    showToast('Erro ao cancelar');
+  });
+}
+
+// ═══════════════════════════════════════════════
+// AGENDA
+// ═══════════════════════════════════════════════
+function renderAgenda() {
+  var fb = document.getElementById('filterBarb').value;
+  var fs = document.getElementById('filterStatus').value;
+
+  var lista = APPTS.slice().sort(function(a, b) {
+    return (a.dataReal + a.hora).localeCompare(b.dataReal + b.hora);
+  });
+
+  if (fb) lista = lista.filter(function(a) { return a.barbeiro === fb; });
+  if (fs) lista = lista.filter(function(a) { return a.status === fs; });
+
+  var html = lista.length ? lista.map(renderAppt).join('') :
+    '<div class="empty"><div class="empty-ico">&#128197;</div><div class="empty-msg">Nenhum agendamento encontrado</div></div>';
+  document.getElementById('todosAgendamentos').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// HORARIOS
+// ═══════════════════════════════════════════════
+function renderHorarios() {
+  var tabsHTML = '';
+  for (var i = 0; i < 7; i++) {
+    var d = new Date();
+    d.setDate(d.getDate() + i);
+    var iso = d.toISOString().split('T')[0];
+    var dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+    var label = i === 0 ? 'HOJE' : dias[d.getDay()];
+    tabsHTML += '<div class="sched-day ' + (iso === SELECTED_DAY ? 'active' : '') + '" onclick="selDay(\'' + iso + '\')">' +
+      '<div class="sd-w">' + label + '</div><div class="sd-d">' + d.getDate().toString().padStart(2, '0') + '</div>' +
+    '</div>';
+  }
+  document.getElementById('dayTabs').innerHTML = tabsHTML;
+
+  var horas = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
+               '13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30'];
+
+  var slots = horas.map(function(h) {
+    var ocupado = APPTS.find(function(a) {
+      return a.dataReal === SELECTED_DAY && a.hora === h && a.status !== 'cancelado' && a.status !== 'conflito';
+    });
+    var bloqueado = (BLOCKS[SELECTED_DAY] || []).indexOf(h) !== -1;
+    var cls = ocupado ? 'busy' : (bloqueado ? 'blocked' : 'free');
+    var nameLabel = ocupado ? '<div class="hour-slot-name">' + ocupado.nome + '</div>' : '';
+    return '<div class="hour-slot ' + cls + '" onclick="toggleHora(\'' + h + '\')">' + h + nameLabel + '</div>';
+  }).join('');
+  document.getElementById('hoursGrid').innerHTML = slots;
+}
+
+function selDay(iso) {
+  SELECTED_DAY = iso;
+  renderHorarios();
+}
+
+function toggleHora(h) {
+  var ocupado = APPTS.some(function(a) {
+    return a.dataReal === SELECTED_DAY && a.hora === h && a.status !== 'cancelado' && a.status !== 'conflito';
+  });
+  if (ocupado) {
+    showToast('Horario ocupado por um cliente');
+    return;
+  }
+  if (!BLOCKS[SELECTED_DAY]) BLOCKS[SELECTED_DAY] = [];
+  var idx = BLOCKS[SELECTED_DAY].indexOf(h);
+  if (idx === -1) BLOCKS[SELECTED_DAY].push(h);
+  else BLOCKS[SELECTED_DAY].splice(idx, 1);
+  localStorage.setItem('bj_blocks', JSON.stringify(BLOCKS));
+  renderHorarios();
+}
+
+// ═══════════════════════════════════════════════
+// CLIENTES
+// ═══════════════════════════════════════════════
+function renderClientes() {
+  var search = (document.getElementById('searchClient') || {}).value || '';
+  var clientesMap = {};
+  APPTS.forEach(function(a) {
+    if (!a.nome) return;
+    if (!clientesMap[a.nome]) clientesMap[a.nome] = { nome: a.nome, tel: a.tel, count: 0, total: 0 };
+    clientesMap[a.nome].count++;
+    clientesMap[a.nome].total += (a.preco || 0);
+  });
+  var clientes = Object.values(clientesMap)
+    .filter(function(c) { return c.nome.toLowerCase().includes(search.toLowerCase()); })
+    .sort(function(a, b) { return b.count - a.count; });
+
+  var html = clientes.length ? clientes.map(function(c) {
+    var inicial = c.nome.charAt(0).toUpperCase();
+    var tel = (c.tel || '').replace(/\D/g, '');
+    return '<div class="client-row">' +
+      '<div class="client-av">' + inicial + '</div>' +
+      '<div class="client-info">' +
+        '<div class="client-name">' + c.nome + '</div>' +
+        '<div class="client-meta">' + (c.tel || '') + ' &middot; ' + c.count + ' visita' + (c.count > 1 ? 's' : '') + '</div>' +
+      '</div>' +
+      '<div class="client-stats">R$' + c.total + '</div>' +
+      (tel ? '<a href="https://wa.me/55' + tel + '" target="_blank" class="appt-btn wa" title="WhatsApp">&#128172;</a>' : '') +
+    '</div>';
+  }).join('') : '<div class="empty"><div class="empty-ico">&#128101;</div><div class="empty-msg">Nenhum cliente cadastrado</div></div>';
+  document.getElementById('listaClientes').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// NOVO AGENDAMENTO MANUAL
+// ═══════════════════════════════════════════════
+function abrirModalNovo() {
+  document.getElementById('modalNovo').classList.add('on');
+  document.getElementById('novoNome').value = '';
+  document.getElementById('novoTel').value = '';
+  document.getElementById('novoData').value = '';
+}
+
+function fecharModal() {
+  document.getElementById('modalNovo').classList.remove('on');
+}
+
+async function salvarNovoAgendamento() {
+  var nome = document.getElementById('novoNome').value.trim();
+  var tel = document.getElementById('novoTel').value.trim();
+  var servicoVal = document.getElementById('novoServico').value;
+  var barbeiro = document.getElementById('novoBarbeiro').value;
+  var data = document.getElementById('novoData').value;
+  var hora = document.getElementById('novoHora').value;
+
+  if (!nome || !tel || !data || !hora) {
+    showToast('Preencha todos os campos');
+    return;
+  }
+
+  var parts = servicoVal.split('|');
+  var servico = parts[0];
+  var preco = parseInt(parts[1]) || 0;
+
+  if (!window.FB || !window.FB.ready) {
+    showToast('Aguarde a conexao...');
+    return;
+  }
+
+  var btn = document.getElementById('btnSalvarNovo');
+  btn.textContent = 'Salvando...';
+  btn.disabled = true;
+
+  try {
+    await window.FB.addDoc(window.FB.collection(window.FB.db, 'agendamentos'), {
+      nome: nome,
+      telefone: tel,
+      servico: servico,
+      preco: preco,
+      barbeiro: barbeiro,
+      data: data,
+      hora: hora,
+      status: 'confirmado',
+      criadoEm: window.FB.serverTimestamp(),
+      origem: 'manual'
+    });
+
+    fecharModal();
+    showToast('Agendamento criado com sucesso!');
+  } catch (e) {
+    console.error('Erro ao salvar:', e);
+    showToast('Erro ao salvar agendamento');
+  }
+
+  btn.textContent = 'Salvar';
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════
+function showToast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
